@@ -55,6 +55,9 @@ class MainWindow(QMainWindow):
         # 添加处理状态标志
         self.processing = False
 
+        # 添加ngFlag变量
+        self.ngFlag = 0
+
     def process_frames(self):
         # 如果正在处理中，跳过新的帧
         if self.processing:
@@ -100,7 +103,17 @@ class MainWindow(QMainWindow):
     def get_result(self):
         """接收处理结果的方法"""
         result = result_queue.get()  # 等待处理结果
-        self.setWindowTitle(f"处理完成，PIN数量: {result}")
+        if result == "ND":
+            self.ngFlag = 0
+            self.setWindowTitle(f"处理完成，PIN数量: {result}")
+        else:
+            if result != 6:
+                self.ngFlag += 1
+                if self.ngFlag > 3:
+                    self.setWindowTitle("NG次数超过阈值，请注意！")
+                    self.ngFlag = 0
+            else:
+                self.ngFlag = 0
         self.processing = False  # 重置处理状态
 
     def show_image(self, frame, label):

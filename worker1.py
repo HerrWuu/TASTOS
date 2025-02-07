@@ -23,7 +23,11 @@ class PCBDetector(Thread):
         while True:
             image = input_queue.get()  # 从主程序获取图像
             result = self.model(image)
-            seg_queue.put(result)    # 传递结果给分割线程
+            # 检测结果为空时，直接放入"ND"
+            if not result or len(result.xyxy[0]) == 0:
+                result_queue.put("ND")
+            else:
+                seg_queue.put(result)    # 传递结果给分割线程
 
 # 线程2：YOLOv11分割
 class Segmenter(Thread):
